@@ -1,0 +1,12 @@
+.notice {
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+}
+
+.neutral {
+  background: var(--color-surface-muted);
+}
+
+.warning {
+  background: var(--color-warning-surface);
+}

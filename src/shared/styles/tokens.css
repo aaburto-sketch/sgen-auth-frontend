@@ -1,0 +1,31 @@
+:root {
+  --font-family-body: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --font-size-body: 1rem;
+  --line-height-body: 1.5;
+  --font-weight-regular: 400;
+  --font-weight-semibold: 600;
+
+  --color-background: #0d1117;
+  --color-background-highlight: #1a202c;
+  --color-text: rgba(255, 255, 255, 0.87);
+  --color-text-muted: rgba(255, 255, 255, 0.5);
+  --color-text-strong: #fff;
+  --color-surface: rgba(255, 255, 255, 0.05);
+  --color-surface-muted: rgba(255, 255, 255, 0.1);
+  --color-input: rgba(0, 0, 0, 0.2);
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-primary: #646cff;
+  --color-primary-hover: #535bf2;
+  --color-disabled: #333;
+  --color-warning-surface: rgba(255, 0, 0, 0.2);
+
+  --space-3: 12px;
+  --space-4: 1rem;
+  --space-8: 2rem;
+  --space-16: 4rem;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --shadow-panel: 0 4px 30px rgba(0, 0, 0, 0.1);
+  --focus-ring: 2px solid var(--color-primary);
+  --focus-ring-offset: 3px;
+}
