@@ -1,0 +1,62 @@
+import type { TranslationCatalog } from './en'
+
+export const es = {
+  app: {
+    name: 'SGEn',
+    title: 'SGEn Auth',
+    documentTitle: '{{title}} | {{module}}',
+    missingApiKey: 'Falta configurar <key>{{variable}}</key> en el archivo {{file}}',
+  },
+  modules: {
+    login: 'Inicio de sesión',
+    register: 'Registro',
+  },
+  auth: {
+    modeLabel: 'Opciones de acceso',
+    loginTab: 'Iniciar Sesión',
+    registerTab: 'Registrarse',
+    loginForm: 'Iniciar sesión',
+    registerForm: 'Registrar cuenta',
+    emailLabel: 'Correo electrónico',
+    emailPlaceholder: 'Correo Electrónico',
+    // eslint-disable-next-line sonarjs/no-hardcoded-passwords -- Translated field label, not a credential.
+    passwordLabel: 'Contraseña',
+    // eslint-disable-next-line sonarjs/no-hardcoded-passwords -- Translated input placeholder, not a credential.
+    passwordPlaceholder: 'Contraseña',
+    loginButton: 'Entrar',
+    registerButton: 'Registrar',
+    processing: 'Procesando...',
+    loginSuccess: '¡Login Exitoso! JWT Obtenido. {{tokenPreview}}...',
+    registrationSuccess: '¡Registro exitoso en Google y en Base de Datos!',
+    errorMessage: 'Error: {{message}}',
+  },
+  onboarding: {
+    fullNameLabel: 'Nombre completo',
+    fullNamePlaceholder: 'Nombre Completo',
+    legalNameLabel: 'Razón social',
+    legalNamePlaceholder: 'Razón Social (Ej: Empresa S.A.)',
+    masterTaxIdLabel: 'RFC maestro',
+    masterTaxIdPlaceholder: 'RFC Maestro (12 o 13 caracteres)',
+  },
+  errors: {
+    unknown: 'No se pudo completar la operación.',
+    authenticationFailed: 'Error de autenticación.',
+    invalidIdentityResponse: 'La respuesta de autenticación no contiene un token válido.',
+    invalidCredentials: 'El correo electrónico o la contraseña no son correctos.',
+    emailExists: 'Ya existe una cuenta con ese correo electrónico.',
+    invalidEmail: 'Escribe un correo electrónico válido.',
+    weakPassword: 'La contraseña no cumple los requisitos de seguridad.',
+    tooManyAttempts: 'Demasiados intentos. Espera un momento antes de continuar.',
+    disabledAccount: 'Esta cuenta está deshabilitada.',
+    operationNotAllowed: 'El acceso con correo y contraseña no está disponible.',
+    sessionExpired: 'No se pudo validar tu sesión. Inicia sesión de nuevo.',
+    identityConfiguration: 'El servicio de autenticación no está configurado correctamente.',
+    network: 'No se pudo conectar con el servicio. Comprueba tu conexión.',
+    invalidResponse: 'El servicio devolvió una respuesta que no se pudo interpretar.',
+    registrationFailed: 'No se pudo completar el registro.',
+    registrationReverted: 'Error en Base de Datos. Registro revertido exitosamente.',
+    invalidRegistration: 'No se pudieron aceptar los datos del registro.',
+    registrationConflict: 'El registro entra en conflicto con datos existentes.',
+    forbidden: 'No tienes permiso para realizar esta operación.',
+  },
+} as const satisfies TranslationCatalog

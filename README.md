@@ -40,3 +40,35 @@ npm run dev
 ```
 
 The application will start on `http://localhost:5173/` by default.
+
+## Organization
+
+```text
+src/
+  app/
+    App.tsx                     Application composition
+    pages/AuthPage.tsx          Screen and mode selection
+    hooks/useAuthenticationForm.ts  Form state and messages
+    services/                  Dependency composition and existing flows
+  features/
+    auth/
+      api/                     GCIP REST and profile requests
+      components/              Credential fields
+      model/                   Input types
+    onboarding/
+      api/                     Tenant registration API adapter
+      components/              Tenant fields
+      model/                   Tenant registration input types
+  shared/
+    api/                       HTTP transport and safe response parsing
+    i18n/                      Typed English/Spanish catalogs and error translation
+    ui/                        Reusable controls
+  config/env.ts                Client configuration
+  index.css                    Active styles
+  main.tsx                     Entry point
+tests/                         Service, form, configuration, and localization tests
+```
+
+`app` coordinates features; each feature contains its API, types, and components. `shared` does not import from `app` or `features`. Components do not make HTTP requests. `create-services.ts` builds dependencies and allows tests to inject `fetch` without contacting real services.
+
+Keep feature-specific rules within their feature. Only move code to `shared` when it is used across features. Do not introduce stores, routers, or empty layers until a flow requires them. The template CSS in `src/App.css` and the original assets are not used by the current screen.

@@ -34,6 +34,43 @@ body {
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 }
 
+.auth-panel {
+  max-width: 500px;
+  margin: 4rem auto;
+}
+
+.auth-title {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.configuration-message {
+  background: rgba(255, 0, 0, 0.2);
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.feedback-message {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  word-break: break-all;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
 .input-field {
   width: 100%;
   padding: 12px;
@@ -85,13 +122,23 @@ body {
 }
 
 .tab {
+  background: none;
+  border: 0;
+  font: inherit;
   flex: 1;
   padding: 1rem;
   text-align: center;
+  text-decoration: none;
   cursor: pointer;
   color: rgba(255, 255, 255, 0.5);
   font-weight: 600;
   transition: color 0.3s, border-bottom 0.3s;
+}
+
+.tab:focus-visible,
+.btn-primary:focus-visible {
+  outline: 2px solid #646cff;
+  outline-offset: 3px;
 }
 
 .tab.active {
