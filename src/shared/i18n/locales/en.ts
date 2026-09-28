@@ -24,8 +24,8 @@ export const en = {
     loginButton: 'Sign in',
     registerButton: 'Register',
     processing: 'Processing...',
-    loginSuccess: 'Login successful! JWT received. {{tokenPreview}}...',
-    registrationSuccess: 'Successfully registered with Google and the database!',
+    loginSuccess: 'Login successful!',
+    registrationSuccess: 'Registration successful! You can now log in.',
     errorMessage: 'Error: {{message}}',
   },
   onboarding: {
@@ -54,7 +54,7 @@ export const en = {
     registrationFailed: 'Registration could not be completed.',
     registrationReverted: 'Database error. Registration successfully reverted.',
     invalidRegistration: 'The registration data could not be accepted.',
-    registrationConflict: 'The registration conflicts with existing data.',
+    registrationConflict: 'An account with this email or RFC already exists.',
     forbidden: 'You do not have permission to perform this operation.',
   } satisfies Record<ErrorCode, string>,
 } as const

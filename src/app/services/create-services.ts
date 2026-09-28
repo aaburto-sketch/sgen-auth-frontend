@@ -7,9 +7,8 @@ import { createAuthenticationService } from './authentication-service'
 
 export function createServices(config: AppConfig, fetcher: typeof fetch = fetch) {
   const backend = createHttpClient(config.apiBaseUrl, fetcher)
-  const google = createHttpClient('https://identitytoolkit.googleapis.com/v1', fetcher)
   return createAuthenticationService(
-    createIdentityApi(google, config.identityApiKey),
+    createIdentityApi(backend),
     createProfileApi(backend),
     createTenantApi(backend),
   )

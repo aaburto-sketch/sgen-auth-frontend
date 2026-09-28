@@ -1,20 +1,21 @@
 import type { HttpClient, JsonResponse } from '../../../shared/api/http-client'
 import type { TenantRegistration } from '../model/tenant-registration'
+import type { Credentials } from '../../auth/model/credentials'
 
 export interface TenantApi {
-  register(token: string, data: TenantRegistration): Promise<JsonResponse>
+  register(credentials: Credentials, data: TenantRegistration): Promise<JsonResponse>
 }
 
 export function createTenantApi(http: HttpClient): TenantApi {
   return {
-    register: (token, data) => http.json('/auth/register-tenant', {
+    register: (credentials, data) => http.json('/auth/register-tenant', {
       method: 'POST',
-      token,
-      // Preserve the backend's field names at the transport boundary.
       body: {
         'nombreCompleto': data.fullName,
         'razonSocial': data.legalName,
         'rfcMaestro': data.masterTaxId,
+        'email': credentials.email,
+        'password': credentials.password,
       },
     }),
   }

@@ -12,7 +12,7 @@ import { createI18n } from './shared/i18n/create-i18n'
 const config = readConfig(import.meta.env)
 const service = createServices(config)
 const i18n = createI18n(navigator.languages.length ? navigator.languages : [navigator.language])
-const router = createBrowserRouter(createAppRoutes({ configured: Boolean(config.identityApiKey), service }))
+const router = createBrowserRouter(createAppRoutes({ configured: Boolean(config.apiBaseUrl), service }))
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

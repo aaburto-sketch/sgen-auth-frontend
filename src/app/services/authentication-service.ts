@@ -20,11 +20,8 @@ export function createAuthenticationService(identity: IdentityApi, profile: Prof
       return profile.getProfile(token)
     },
     async register(credentials, tenant) {
-      const token = await identity.signUp(credentials)
-      const response = await tenants.register(token, tenant)
+      const response = await tenants.register(credentials, tenant)
       if (!response.ok) {
-        // Retain the existing compensation trigger and ordering, without automatic retries.
-        await identity.deleteAccount(token)
         const message = responseMessage(response.data)
         throw new ApplicationError(message ? registrationErrorCode(response.status) : 'registrationReverted', message || undefined)
       }

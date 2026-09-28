@@ -1,4 +1,5 @@
 import { Outlet } from 'react-router'
+import { Toaster } from 'react-hot-toast'
 import { useAuthenticationForm } from '../hooks/useAuthenticationForm'
 import type { AuthenticationService } from '../services/authentication-service'
 import styles from './AuthLayout.module.css'
@@ -20,6 +21,7 @@ export function AuthLayout({ configured, service }: Readonly<AuthLayoutProps>) {
       <div className={styles.content}>
         <Outlet context={{ configured, form } satisfies AuthFormContext} />
       </div>
+      <Toaster position="top-right" toastOptions={{ style: { background: '#333', color: '#fff' } }} />
     </div>
   )
 }

@@ -29,7 +29,7 @@ export function AuthPage({ mode }: Readonly<AuthPageProps>) {
           <Trans
             t={t}
             i18nKey="app.missingApiKey"
-            values={{ variable: 'VITE_GCIP_API_KEY', file: '.env' }}
+            values={{ variable: 'VITE_API_BASE_URL', file: '.env' }}
             components={{ key: <strong /> }}
           />
         </Notice>
@@ -51,8 +51,6 @@ export function AuthPage({ mode }: Readonly<AuthPageProps>) {
           {submitLabel}
         </Button>
       </form>
-
-      {form.message && <Notice className={styles.feedbackMessage} role="status">{form.message}</Notice>}
     </main>
   )
 }

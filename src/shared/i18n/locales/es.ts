@@ -26,8 +26,8 @@ export const es = {
     loginButton: 'Entrar',
     registerButton: 'Registrar',
     processing: 'Procesando...',
-    loginSuccess: '¡Login Exitoso! JWT Obtenido. {{tokenPreview}}...',
-    registrationSuccess: '¡Registro exitoso en Google y en Base de Datos!',
+    loginSuccess: '¡Inicio de sesión exitoso!',
+    registrationSuccess: '¡Registro exitoso! Ya puedes iniciar sesión.',
     errorMessage: 'Error: {{message}}',
   },
   onboarding: {
@@ -56,7 +56,7 @@ export const es = {
     registrationFailed: 'No se pudo completar el registro.',
     registrationReverted: 'Error en Base de Datos. Registro revertido exitosamente.',
     invalidRegistration: 'No se pudieron aceptar los datos del registro.',
-    registrationConflict: 'El registro entra en conflicto con datos existentes.',
+    registrationConflict: 'Ya existe una cuenta registrada con este correo electrónico o RFC.',
     forbidden: 'No tienes permiso para realizar esta operación.',
   },
 } as const satisfies TranslationCatalog

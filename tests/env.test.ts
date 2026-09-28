@@ -3,11 +3,11 @@ import { readConfig } from '../src/config/env'
 
 describe('frontend configuration', () => {
   it('preserves the default API and missing-key state', () => {
-    expect(readConfig({})).toEqual({ apiBaseUrl: 'http://localhost:3000/api/v1', identityApiKey: '' })
+    expect(readConfig({})).toEqual({ apiBaseUrl: 'http://localhost:3000/api/v1' })
   })
   it('allows deployment without changing application code', () => {
     expect(readConfig({ VITE_GCIP_API_KEY: 'key', VITE_API_BASE_URL: 'https://example.test/api/v1/' }))
-      .toEqual({ identityApiKey: 'key', apiBaseUrl: 'https://example.test/api/v1' })
+      .toEqual({ apiBaseUrl: 'https://example.test/api/v1' })
   })
   it.each([
     ['https://example.test/', 'https://example.test'],
