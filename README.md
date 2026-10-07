@@ -1,74 +1,62 @@
 # SGEn Authentication Frontend
 
-This repository contains the frontend application for the SGEn authentication flow. It handles user registration and login, orchestrating the communication between Google Cloud Identity Platform (GCIP) and our NestJS backend.
+Frontend de SGEn conectado al backend NestJS actual: login, selección de organización, sesión y consulta/alta de organizaciones.
 
 ## Architecture
 
-The frontend acts as the initiator of the authentication flow:
-1. Validates user input.
-2. Registers/Authenticates the user directly with **Google Cloud Identity Platform (GCIP)** via REST API.
-3. Retrieves the secure JWT (IdToken).
-4. Submits the JWT to the **SGEn Backend** for tenant provisioning and local database registration.
-5. Performs compensating transactions (rollbacks) against GCIP if the local database provisioning fails.
+- Sesiones con cookies HttpOnly y CSRF; sin tokens en almacenamiento web.
+- Renovación de sesión coordinada entre pestañas y rutas protegidas.
+- Plataforma: listado, búsqueda, alta y detalle. Cliente: detalle de su organización y permisos.
+- Sin registro público. MFA, federación e invitaciones siguen pendientes en backend.
 
 ## Tech Stack
 
-- **Framework:** React + TypeScript
-- **Bundler:** Vite
-- **Styling:** CSS (Vanilla)
+- React + TypeScript
+- Vite
+- CSS Modules e i18next (español/inglés)
 
 ## Environment Setup
-
-Duplicate the `.env.example` file and rename it to `.env`:
 
 ```bash
 cp .env.example .env
 ```
 
-Set the `VITE_GCIP_API_KEY` to your Firebase Web API Key.
+`VITE_API_BASE_URL` apunta a `http://localhost:3000/api/v1`. Usar `localhost` en ambos servicios y autorizar el origen del frontend en `CORS_ORIGINS`.
 
 ## Installation
 
+Node.js 24:
+
 ```bash
-npm install
+npm ci
 ```
 
 ## Running the application
 
+Desde la raíz del proyecto (`cd ..`), Docker levanta frontend, backend y PostgreSQL juntos:
+
 ```bash
 npm run dev
+npm run dev:logs
+npm run dev:down
 ```
 
-The application will start on `http://localhost:5173/` by default.
+Frontend: `http://localhost:5173` por defecto. Este entorno usa `http://localhost:5175`, configurado con `FRONTEND_PORT` en `sgen-auth-backend/.env.development.local`.
+
+Para ejecutar sólo Vite desde este repositorio: `npm run dev`. Para validar: `npm run check` (lint, tipos, pruebas y build).
+
+Cuentas locales: `platform@example.test` (alta/listado), `admin.alpha@example.test`, `admin.beta@example.test`, `shared@example.test` (selector de organización) y `suspended@example.test` (acceso rechazado). Contraseña: valor de `DEV_SEED_PASSWORD` en `sgen-auth-backend/.env.development.local`; no se incluye en el frontend.
 
 ## Organization
 
 ```text
 src/
-  app/
-    App.tsx                     Application composition
-    pages/AuthPage.tsx          Screen and mode selection
-    hooks/useAuthenticationForm.ts  Form state and messages
-    services/                  Dependency composition and existing flows
-  features/
-    auth/
-      api/                     GCIP REST and profile requests
-      components/              Credential fields
-      model/                   Input types
-    onboarding/
-      api/                     Tenant registration API adapter
-      components/              Tenant fields
-      model/                   Tenant registration input types
-  shared/
-    api/                       HTTP transport and safe response parsing
-    i18n/                      Typed English/Spanish catalogs and error translation
-    ui/                        Reusable controls
-  config/env.ts                Client configuration
-  index.css                    Active styles
-  main.tsx                     Entry point
-tests/                         Service, form, configuration, and localization tests
+  app/             Rutas, pantallas, sesión compartida y composición de servicios
+  features/auth/   API de autenticación, estado de sesión y tipos
+  features/organizations/  API y tipos de organizaciones
+  shared/          Transporte HTTP, traducciones, controles y estilos
+  config/          Configuración pública del cliente
+tests/             Regresiones de sesión, transporte, pantallas y traducciones
 ```
 
-`app` coordinates features; each feature contains its API, types, and components. `shared` does not import from `app` or `features`. Components do not make HTTP requests. `create-services.ts` builds dependencies and allows tests to inject `fetch` without contacting real services.
-
-Keep feature-specific rules within their feature. Only move code to `shared` when it is used across features. Do not introduce stores, routers, or empty layers until a flow requires them. The template CSS in `src/App.css` and the original assets are not used by the current screen.
+`app` compone las funcionalidades; `shared` no depende de ellas. Los componentes reciben servicios desde el contexto y las pruebas inyectan `fetch`. Contrato y documentos locales: `../Docs/backend/`.

@@ -1,33 +1,54 @@
 import { Navigate, type RouteObject } from 'react-router'
 import { App } from '../App'
-import { AuthLayout, type AuthLayoutProps } from '../layouts/AuthLayout'
+import { AuthLayout } from '../layouts/AuthLayout'
+import { ProtectedLayout } from '../layouts/ProtectedLayout'
 import { AuthPage } from '../pages/AuthPage'
+import { OrganizationsPage } from '../pages/OrganizationsPage'
+import { NewOrganizationPage } from '../pages/NewOrganizationPage'
+import { OrganizationPage } from '../pages/OrganizationPage'
+import { SessionPage } from '../pages/SessionPage'
+import type { Services } from '../services/create-services'
 import type { RouteMetadata } from './route-metadata'
-import { routePaths } from './route-paths'
 
-export function createAppRoutes(dependencies: AuthLayoutProps): RouteObject[] {
+export function createAppRoutes(services: Services): RouteObject[] {
   return [
     {
       path: '/',
-      element: <App />,
+      element: <App services={services} />,
       children: [
-        { index: true, element: <Navigate to={routePaths.login} replace /> },
         {
-          element: <AuthLayout {...dependencies} />,
+          element: <AuthLayout />,
           children: [
+            { path: 'login', element: <AuthPage />, handle: { module: 'login' } satisfies RouteMetadata },
+          ],
+        },
+        {
+          element: <ProtectedLayout />,
+          children: [
+            { index: true, element: <Navigate to="/organizations" replace /> },
             {
-              path: routePaths.login,
-              element: <AuthPage mode="login" />,
-              handle: { module: 'login' } satisfies RouteMetadata,
+              path: 'organizations',
+              element: <OrganizationsPage />,
+              handle: { module: 'organizations' } satisfies RouteMetadata,
             },
             {
-              path: routePaths.register,
-              element: <AuthPage mode="register" />,
-              handle: { module: 'register' } satisfies RouteMetadata,
+              path: 'organizations/new',
+              element: <NewOrganizationPage />,
+              handle: { module: 'newOrganization' } satisfies RouteMetadata,
+            },
+            {
+              path: 'organizations/:id',
+              element: <OrganizationPage />,
+              handle: { module: 'organization' } satisfies RouteMetadata,
+            },
+            {
+              path: 'session',
+              element: <SessionPage />,
+              handle: { module: 'session' } satisfies RouteMetadata,
             },
           ],
         },
-        { path: '*', element: <Navigate to={routePaths.login} replace /> },
+        { path: '*', element: <Navigate to="/" replace /> },
       ],
     },
   ]

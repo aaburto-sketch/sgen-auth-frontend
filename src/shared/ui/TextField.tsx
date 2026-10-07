@@ -10,7 +10,9 @@ export function TextField({ label, id, className = '', ...props }: Readonly<Text
   const inputId = id ?? generatedId
   return (
     <>
-      <label className={styles.label} htmlFor={inputId}>{label}</label>
+      <label className={styles.label} htmlFor={inputId}>
+        {label}
+      </label>
       <input {...props} id={inputId} className={`${styles.input} ${className}`} />
     </>
   )

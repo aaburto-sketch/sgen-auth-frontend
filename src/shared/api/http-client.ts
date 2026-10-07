@@ -1,41 +1,99 @@
+import { ApiError, isUnauthorized, responseError } from './errors'
+import { isRecord } from './response'
+import { browserSessionLock, type SessionLock } from './session-lock'
+
 interface RequestOptions {
-  token?: string
   method?: 'GET' | 'POST'
   body?: unknown
+  authenticated?: boolean
+  signal?: AbortSignal
 }
-
-export interface JsonResponse {
-  ok: boolean
-  status: number
-  data: unknown
-}
-
 export interface HttpClient {
-  json(path: string, options?: RequestOptions): Promise<JsonResponse>
-  send(path: string, options?: RequestOptions): Promise<void>
+  request<T>(path: string, options?: RequestOptions): Promise<T>
+  refresh(force?: boolean): Promise<void>
+  onSessionExpired(handler: () => void): void
 }
 
-/** Transport only: each feature owns its existing HTTP status handling. No retries. */
-export function createHttpClient(baseUrl: string, fetcher: typeof fetch = fetch): HttpClient {
-  function request(path: string, options: RequestOptions = {}): Promise<Response> {
-    return fetcher(`${baseUrl}${path}`, {
+export function createHttpClient(
+  baseUrl: string,
+  fetcher: typeof fetch = fetch,
+  lock: SessionLock = browserSessionLock(baseUrl),
+): HttpClient {
+  let refreshing: Promise<void> | undefined
+  let expired = () => {}
+
+  async function send<T>(path: string, options: RequestOptions = {}, csrf?: string): Promise<T> {
+    const response = await fetcher(`${baseUrl}${path}`, {
       method: options.method ?? 'GET',
+      credentials: 'include',
+      signal: options.signal,
       headers: {
-        ...(options.token ? { Authorization: `Bearer ${options.token}` } : {}),
-        ...(options.body !== undefined ? { 'Content-Type': 'application/json' } : {}),
+        ...(options.body === undefined ? {} : { 'Content-Type': 'application/json' }),
+        ...(csrf ? { 'X-CSRF-Token': csrf } : {}),
       },
       body: options.body === undefined ? undefined : JSON.stringify(options.body),
     })
+    const body: unknown = await response.json()
+    if (!response.ok) throw responseError(response.status, body)
+    if (!isRecord(body) || !('data' in body)) throw new ApiError(502, 'INVALID_RESPONSE')
+    return body as T
+  }
+
+  async function mutation<T>(path: string, options: RequestOptions): Promise<T> {
+    // Obtain the current cookie-bound value inside the cross-tab lock, never persist it.
+    const csrf = await send<{ data: { csrfToken: string } }>('/auth/csrf')
+    if (typeof csrf.data.csrfToken !== 'string') throw new ApiError(502, 'INVALID_RESPONSE')
+    return send<T>(path, options, csrf.data.csrfToken)
+  }
+
+  const invoke = <T>(path: string, options: RequestOptions) =>
+    options.method === 'POST' ? lock(() => mutation<T>(path, options)) : send<T>(path, options)
+
+  async function renew(force: boolean): Promise<void> {
+    await lock(async () => {
+      // Another tab may already have rotated the refresh token while this one waited.
+      if (!force) {
+        try {
+          await send('/auth/me')
+          return
+        } catch (error) {
+          if (!isUnauthorized(error)) throw error
+        }
+      }
+      await mutation('/auth/refresh', { method: 'POST' })
+    })
+  }
+
+  function refresh(force = false): Promise<void> {
+    refreshing ??= renew(force)
+      .catch((error: unknown) => {
+        if (isUnauthorized(error)) expired()
+        throw error
+      })
+      .finally(() => {
+        refreshing = undefined
+      })
+    return refreshing
   }
 
   return {
-    async json(path, options) {
-      const response = await request(path, options)
-      const data: unknown = await response.json()
-      return { ok: response.ok, status: response.status, data }
+    refresh,
+    onSessionExpired(handler) {
+      expired = handler
     },
-    async send(path, options) {
-      await request(path, options)
+    async request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+      try {
+        return await invoke<T>(path, options)
+      } catch (error) {
+        if (options.authenticated === false || !isUnauthorized(error)) throw error
+      }
+      await refresh()
+      try {
+        return await invoke<T>(path, options)
+      } catch (error) {
+        if (isUnauthorized(error)) expired()
+        throw error
+      }
     },
   }
 }

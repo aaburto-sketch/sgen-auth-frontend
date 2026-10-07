@@ -7,7 +7,9 @@ import { readRouteMetadata } from './route-metadata'
 export function DocumentMetadata() {
   const { t, i18n } = useTranslation()
   const matches = useMatches()
-  const metadata = matches.map((match) => readRouteMetadata(match.handle)).findLast((value) => value !== undefined)
+  const metadata = matches
+    .map((match) => readRouteMetadata(match.handle))
+    .findLast((value) => value !== undefined)
   const language = resolveLocale([i18n.resolvedLanguage ?? i18n.language])
   const title = metadata
     ? t('app.documentTitle', { title: t('app.name'), module: t(`modules.${metadata.module}`) })

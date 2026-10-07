@@ -1,56 +1,100 @@
-import { Trans, useTranslation } from 'react-i18next'
-import { NavLink, useOutletContext } from 'react-router'
+import { useState, type SubmitEvent } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Navigate } from 'react-router'
 import { CredentialsFields } from '../../features/auth/components/CredentialsFields'
-import { TenantFields } from '../../features/onboarding/components/TenantFields'
+import { tenantChoices, type TenantChoice } from '../../features/auth/model/session'
 import { Button } from '../../shared/ui/Button'
-import { Notice } from '../../shared/ui/Notice'
-import type { AuthMode } from '../hooks/useAuthenticationForm'
-import type { AuthFormContext } from '../layouts/AuthLayout'
-import { routePaths } from '../router/route-paths'
+import { ErrorNotice } from '../../shared/ui/ErrorNotice'
+import { useServices, useSession } from '../services/services-context'
 import styles from './AuthPage.module.css'
 
-interface AuthPageProps {
-  mode: AuthMode
-}
-
-export function AuthPage({ mode }: Readonly<AuthPageProps>) {
+export function AuthPage() {
   const { t } = useTranslation()
-  const { configured, form } = useOutletContext<AuthFormContext>()
-  const isLogin = mode === 'login'
-  const actionLabelKey = isLogin ? 'auth.loginButton' : 'auth.registerButton'
-  const submitLabel = t(form.loading ? 'auth.processing' : actionLabelKey)
+  const { auth } = useServices()
+  const state = useSession()
+  const [credentials, setCredentials] = useState({ email: '', password: '' })
+  const [choices, setChoices] = useState<TenantChoice[]>([])
+  const [tenantId, setTenantId] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<unknown>()
 
+  async function submit(event: SubmitEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setBusy(true)
+    setError(undefined)
+    try {
+      await auth.login(credentials, tenantId || undefined)
+      setCredentials({ email: '', password: '' })
+      setChoices([])
+    } catch (failure) {
+      const tenants = tenantChoices(failure)
+      if (tenants.length) {
+        setChoices(tenants)
+        setTenantId('')
+      } else {
+        setError(failure)
+        setChoices([])
+        setTenantId('')
+        setCredentials((current) => ({ ...current, password: '' }))
+      }
+    } finally {
+      setBusy(false)
+    }
+  }
+  function cancel() {
+    setChoices([])
+    setTenantId('')
+    setCredentials((current) => ({ ...current, password: '' }))
+    setError(undefined)
+  }
+  const actionLabel = choices.length ? t('auth.continue') : t('auth.loginButton')
+  if (state.status === 'authenticated') return <Navigate to="/organizations" replace />
+  if (state.status === 'loading')
+    return (
+      <main className={styles.panel}>
+        <p role="status">{t('app.loading')}</p>
+      </main>
+    )
   return (
     <main className={styles.panel}>
-      <h1 className={styles.title}>{t('app.title')}</h1>
-
-      {!configured && (
-        <Notice className={styles.configurationMessage} variant="warning" role="alert">
-          <Trans
-            t={t}
-            i18nKey="app.missingApiKey"
-            values={{ variable: 'VITE_API_BASE_URL', file: '.env' }}
-            components={{ key: <strong /> }}
-          />
-        </Notice>
-      )}
-
-      <div className={styles.tabs} role="group" aria-label={t('auth.modeLabel')}>
-        <NavLink to={routePaths.login} className={styles.tab} end>
-          {t('auth.loginTab')}
-        </NavLink>
-        <NavLink to={routePaths.register} className={styles.tab} end>
-          {t('auth.registerTab')}
-        </NavLink>
-      </div>
-
-      <form onSubmit={(event) => form.submit(event, mode)} aria-label={t(isLogin ? 'auth.loginForm' : 'auth.registerForm')} aria-busy={form.loading}>
-        <CredentialsFields value={form.credentials} onChange={form.setCredentials} newPassword={!isLogin} />
-        {!isLogin && <TenantFields value={form.tenant} onChange={form.setTenant} />}
-        <Button className={styles.submitButton} type="submit" disabled={form.loading || !configured}>
-          {submitLabel}
-        </Button>
+      <p className={styles.brand}>SGEn</p>
+      <h1>{choices.length ? t('auth.tenantHeading') : t('auth.heading')}</h1>
+      <p className={styles.subtitle}>{choices.length ? t('auth.tenantHint') : t('auth.subtitle')}</p>
+      <form onSubmit={submit} aria-label={t('auth.loginForm')} aria-busy={busy}>
+        <fieldset disabled={busy}>
+          {choices.length ? (
+            <>
+              <p>{credentials.email}</p>
+              <label htmlFor="tenant-choice">{t('auth.tenantLabel')}</label>
+              <select
+                id="tenant-choice"
+                value={tenantId}
+                onChange={(event) => setTenantId(event.target.value)}
+                required
+              >
+                <option value="">{t('auth.tenantPlaceholder')}</option>
+                {choices.map((item) => (
+                  <option key={item.tenantId} value={item.tenantId}>
+                    {item.razonSocial}
+                  </option>
+                ))}
+              </select>
+            </>
+          ) : (
+            <CredentialsFields value={credentials} onChange={setCredentials} />
+          )}
+          <Button className={styles.submitButton} type="submit">
+            {busy ? t('auth.processing') : actionLabel}
+          </Button>
+          {choices.length > 0 && (
+            <Button className={styles.cancel} onClick={cancel}>
+              {t('app.cancel')}
+            </Button>
+          )}
+        </fieldset>
       </form>
+      {error !== undefined && <ErrorNotice error={error} />}
+      {state.status === 'error' && error === undefined && <ErrorNotice error={state.error} />}
     </main>
   )
 }

@@ -4,7 +4,7 @@ import { en } from './locales/en'
 import { es } from './locales/es'
 
 export const supportedLocales = ['en', 'es'] as const
-export type Locale = typeof supportedLocales[number]
+export type Locale = (typeof supportedLocales)[number]
 export const defaultLocale: Locale = 'es'
 
 export function resolveLocale(preferences: readonly string[]): Locale {
