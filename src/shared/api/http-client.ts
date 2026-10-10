@@ -3,7 +3,7 @@ import { isRecord } from './response'
 import { browserSessionLock, type SessionLock } from './session-lock'
 
 interface RequestOptions {
-  method?: 'GET' | 'POST'
+  method?: 'GET' | 'POST' | 'PATCH'
   body?: unknown
   authenticated?: boolean
   signal?: AbortSignal
@@ -47,7 +47,7 @@ export function createHttpClient(
   }
 
   const invoke = <T>(path: string, options: RequestOptions) =>
-    options.method === 'POST' ? lock(() => mutation<T>(path, options)) : send<T>(path, options)
+    options.method === 'POST' || options.method === 'PATCH' ? lock(() => mutation<T>(path, options)) : send<T>(path, options)
 
   async function renew(force: boolean): Promise<void> {
     await lock(async () => {

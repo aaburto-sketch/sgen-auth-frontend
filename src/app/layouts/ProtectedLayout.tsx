@@ -1,18 +1,38 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { NavLink, Navigate, Outlet } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { useServices, useSession } from '../services/services-context'
-import { Button } from '../../shared/ui/Button'
 import { ErrorNotice } from '../../shared/ui/ErrorNotice'
-import { LanguageSelector } from '../../shared/ui/LanguageSelector'
+import { Button } from '../../shared/ui/Button'
+import { Avatar } from '../../shared/ui/Avatar'
+import { Building2, User, LogOut, Menu } from 'lucide-react'
 import styles from './ProtectedLayout.module.css'
 
 export function ProtectedLayout() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { auth } = useServices()
   const state = useSession()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<unknown>()
+  const [isCollapsed, setIsCollapsed] = useState(false)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
+
+  useEffect(() => {
+    if (state.status === 'authenticated') {
+      const { language, theme } = state.session.identity
+      if (language && i18n.resolvedLanguage !== language) {
+        void i18n.changeLanguage(language)
+      }
+      if (theme) {
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark')
+        } else {
+          document.documentElement.classList.remove('dark')
+        }
+      }
+    }
+  }, [state.status, state.status === 'authenticated' ? state.session.identity.language : null, state.status === 'authenticated' ? state.session.identity.theme : null, i18n])
+
   async function logout() {
     setBusy(true)
     setError(undefined)
@@ -24,60 +44,101 @@ export function ProtectedLayout() {
       setBusy(false)
     }
   }
+
   if (state.status === 'anonymous') return <Navigate to="/login" replace />
   if (state.status === 'loading')
     return (
-      <main className={styles.main}>
-        <p role="status">{t('app.loading')}</p>
+      <main className={styles.mainWrapper}>
+        <div className={styles.main}>
+          <p role="status">{t('app.loading')}</p>
+        </div>
       </main>
     )
+
   if (state.status === 'error')
     return (
-      <main className={styles.main}>
-        <ErrorNotice error={state.error} />
-        <Button
-          onClick={() => {
-            void auth.restore()
-          }}
-        >
-          {t('app.retry')}
-        </Button>
+      <main className={styles.mainWrapper}>
+        <div className={styles.main}>
+          <ErrorNotice error={state.error} />
+          <Button onClick={() => void auth.restore()}>{t('app.retry')}</Button>
+        </div>
       </main>
     )
+
   const { session } = state
   const platform = session.context.mod === 'SUPERADMIN_PLATAFORMA'
+
   return (
     <div className={styles.shell}>
-      <header className={styles.header}>
+      <aside className={styles.header} data-collapsed={isCollapsed}>
         <NavLink to="/organizations" className={styles.brand}>
-          SGEn<span>{t('app.title')}</span>
+          <div className={styles.brandLogo}>
+            <img src="/assets/logo-simbolo.png" alt="" onError={(e) => e.currentTarget.style.display = 'none'} />
+          </div>
+          <div className={styles.brandText}>
+            <strong>SGEn</strong>
+            <span>{t('app.name') || 'ENEGENCE'}</span>
+          </div>
         </NavLink>
+
+        <div className={styles.navCategory}>Seguridad y Acceso</div>
         <nav aria-label={t('app.name')}>
           <NavLink to="/organizations">
-            {platform ? t('organizations.title') : t('organizations.current')}
+            <Building2 size={20} />
+            <span>{platform ? t('organizations.title') : t('organizations.current')}</span>
           </NavLink>
-          <NavLink to="/session">{t('session.title')}</NavLink>
         </nav>
+
         <div className={styles.actions}>
-          <LanguageSelector />
-          <Button
-            onClick={() => {
-              void logout()
-            }}
-            disabled={busy}
-          >
-            {busy ? t('auth.signingOut') : t('auth.logout')}
-          </Button>
+          <div className={styles.userMenuWrapper}>
+            <button
+              onClick={() => setUserMenuOpen(!userMenuOpen)}
+              className={styles.userBtn}
+              aria-expanded={userMenuOpen}
+            >
+              <div className={styles.avatar}>
+                <Avatar name={session.identity.name} size={28} />
+              </div>
+              <span>{session.identity.name}</span>
+            </button>
+            {userMenuOpen && (
+              <div className={styles.userDropdown}>
+                <NavLink to="/session" onClick={() => setUserMenuOpen(false)}>
+                  <User size={16} />
+                  {t('session.title')}
+                </NavLink>
+                <button onClick={() => { setUserMenuOpen(false); void logout(); }} disabled={busy}>
+                  <LogOut size={16} />
+                  {busy ? t('auth.signingOut') : t('auth.logout')}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
-      </header>
-      <main className={styles.main} key={session.context.sid}>
-        <div className={styles.identity}>
-          <span>{session.identity.name}</span>
-          <span>{platform ? t('auth.platform') : t('auth.tenant')}</span>
-        </div>
-        {error !== undefined && <ErrorNotice error={error} />}
-        <Outlet />
-      </main>
+      </aside>
+
+      <div className={styles.mainWrapper}>
+        <header className={styles.topBar}>
+          <div className={styles.identityWrapper}>
+            <button className={styles.toggleBtn} onClick={() => setIsCollapsed(!isCollapsed)} aria-label="Toggle sidebar">
+              <Menu size={24} />
+            </button>
+            <div className={styles.identity}>
+              <span>{platform ? t('auth.platform') : t('auth.tenant')}</span>
+              <span>{session.identity.name}</span>
+            </div>
+          </div>
+          <div className={styles.topActions}>
+            <div className={styles.badgeBtn}>Modo FEDERADO</div>
+            <div className={styles.badgeBtn}>Contexto de soporte</div>
+          </div>
+        </header>
+
+        <main className={styles.main} key={session.context.sid}>
+          {error !== undefined && <ErrorNotice error={error} />}
+          <Outlet />
+        </main>
+      </div>
     </div>
   )
 }

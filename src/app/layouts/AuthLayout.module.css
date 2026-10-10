@@ -1,22 +1,30 @@
 .viewport {
   display: flex;
-  align-items: center;
   min-height: 100vh;
-  background: radial-gradient(
-    circle at top right,
-    var(--color-background-highlight),
-    var(--color-background)
-  );
+  background: #F4F6FB;
+  font-family: 'Manrope', "Segoe UI", sans-serif;
 }
+
 .content {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: var(--space-4);
-  width: 100%;
-}
-.language {
+  flex-grow: 1;
   display: flex;
-  justify-content: flex-end;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  position: relative;
+}
+
+@media (max-width: 1024px) {
+  .content {
+    padding: 20px;
+  }
+}
+
+.language {
+  position: absolute;
+  top: 40px;
+  right: 40px;
 }
 .language select {
   width: auto;

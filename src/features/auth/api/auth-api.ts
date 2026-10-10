@@ -18,6 +18,12 @@ export function createAuthApi(http: HttpClient) {
     async logout() {
       await http.request('/auth/logout', { method: 'POST' })
     },
+    async updateSettings(settings: { language?: string; theme?: string }) {
+      await http.request('/auth/me/settings', {
+        method: 'PATCH',
+        body: settings,
+      })
+    },
     async refresh() {
       await http.refresh(true)
     },

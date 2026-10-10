@@ -5,6 +5,8 @@ import { useServices, useSession } from '../services/services-context'
 import { Button } from '../../shared/ui/Button'
 import { ErrorNotice } from '../../shared/ui/ErrorNotice'
 import { Notice } from '../../shared/ui/Notice'
+import { LanguageSelector } from '../../shared/ui/LanguageSelector'
+import { ThemeSelector } from '../../shared/ui/ThemeSelector'
 import styles from './Workspace.module.css'
 
 export function SessionPage() {
@@ -60,6 +62,18 @@ export function SessionPage() {
         <div>
           <dt>{t('session.mode')}</dt>
           <dd>{t(platform ? 'auth.platform' : 'auth.tenant')}</dd>
+        </div>
+        <div>
+          <dt>{t('app.language')}</dt>
+          <dd>
+            <LanguageSelector />
+          </dd>
+        </div>
+        <div>
+          <dt>Tema</dt>
+          <dd>
+            <ThemeSelector />
+          </dd>
         </div>
         {session.context.tid && (
           <div>

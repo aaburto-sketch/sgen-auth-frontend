@@ -83,6 +83,17 @@ export class SessionStore {
     await this.api.refresh()
     await this.restore()
   }
+  async updateSettings(settings: { language?: string; theme?: string }): Promise<void> {
+    await this.api.updateSettings(settings)
+    if (this.state.status === 'authenticated') {
+      const updatedSession = { 
+        ...this.state.session, 
+        identity: { ...this.state.session.identity, ...settings } 
+      }
+      this.update({ status: 'authenticated', session: updatedSession })
+      this.broadcast()
+    }
+  }
   async externalChange(): Promise<void> {
     this.revision++
     this.update({ status: 'loading', session: null })

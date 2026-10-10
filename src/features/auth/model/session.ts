@@ -7,6 +7,8 @@ export interface Identity {
   name: string
   type: string
   active: boolean
+  language?: string
+  theme?: string
 }
 export interface SessionContext {
   sub: string

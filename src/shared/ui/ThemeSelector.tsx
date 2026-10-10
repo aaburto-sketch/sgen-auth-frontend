@@ -1,19 +1,23 @@
-import { useTranslation } from 'react-i18next'
 import { useServices, useSession } from '../../app/services/services-context'
 
-export function LanguageSelector() {
-  const { i18n } = useTranslation()
+export function ThemeSelector() {
   const { auth } = useServices()
   const state = useSession()
 
+  const currentTheme = state.status === 'authenticated' ? state.session.identity.theme || 'light' : 'light'
+
   return (
     <select
-      value={i18n.resolvedLanguage ?? 'es'}
+      value={currentTheme}
       onChange={(event) => {
-        const lang = event.target.value
-        void i18n.changeLanguage(lang)
+        const theme = event.target.value
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark')
+        } else {
+          document.documentElement.classList.remove('dark')
+        }
         if (state.status === 'authenticated') {
-          void auth.updateSettings({ language: lang })
+          void auth.updateSettings({ theme })
         }
       }}
       style={{
@@ -26,8 +30,8 @@ export function LanguageSelector() {
         cursor: 'pointer'
       }}
     >
-      <option value="es">Español</option>
-      <option value="en">English</option>
+      <option value="light">Claro</option>
+      <option value="dark">Oscuro</option>
     </select>
   )
 }

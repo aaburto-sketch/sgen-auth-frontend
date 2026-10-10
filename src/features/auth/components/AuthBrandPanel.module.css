@@ -1,0 +1,104 @@
+.panel {
+  flex: 0 0 600px;
+  height: 100vh;
+  box-sizing: border-box;
+  background: #161B3F;
+  color: #FFFFFF;
+  position: relative;
+  overflow: hidden;
+  padding: 64px 64px 56px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.backgroundSvg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.header, .content, .footer {
+  position: relative;
+  z-index: 1;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.logoBox {
+  width: 52px;
+  height: 52px;
+  background: #FFFFFF;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logoImage {
+  width: 34px;
+  height: auto;
+}
+
+.brandName {
+  font-family: 'Sora', sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.18em;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 440px;
+}
+
+.title {
+  font-family: 'Sora', sans-serif;
+  font-size: 64px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  font-family: 'Sora', sans-serif;
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: #DCE5FA;
+}
+
+.features {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+  font-size: 15px;
+  color: #C9D3EE;
+}
+
+.featureItem {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.footer {
+  font-size: 13px;
+  color: #A9B4D6;
+}
+
+@media (max-width: 1024px) {
+  .panel {
+    display: none; /* Se oculta en dispositivos móviles para priorizar el login */
+  }
+}
